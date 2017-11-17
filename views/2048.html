@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>2048</title>
+	<style type="text/css">
+		* {
+			margin:0;
+			padding: 0;
+		}
+		html,body {
+			width: 100%;
+			height: 100%;
+		}
+		body {
+			background: #929292;
+			position: relative;
+		}
+		li {
+			list-style: none;
+		}
+		.box {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+			width: 80%;
+			padding-top: 80%;
+			margin:auto;
+			background: #bbada0;
+			border: 8px solid #ddd;
+			border-radius: 10px;
+			box-shadow: 0 0 10px #fff;
+		}
+		.pos {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%; 
+		}
+		.pos li{
+			float: left;
+			width: 21%;
+			height: 21%;
+			margin: 2%;
+			background: #ccc0b2;
+			border-radius: 8px;
+			box-shadow: 0 0 2px #888080;
+			text-align: center;
+			line-height: 63px;
+			font-size: 24px;
+			color: #444;
+		}
+		@media screen and (max-width: 360px) {
+			.pos li{
+				line-height: 54px;
+			}
+		}
+		@media screen and (min-width: 360px) and (max-width: 374px) {
+			.pos li{
+				line-height: 60px;
+			}
+		}
+		@media screen and (min-width: 400px){
+			.pos li{
+				line-height: 70px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="box">
+		<ul class="pos">
+			
+		</ul>
+	</div>
+	<script type="text/javascript">
+			var backgroundColors = ['#ead5ae','#d9dacd','#f3b179','#f59565','#f57c60','#c14343','#86803a','#73b947','#008422','#1bb1aa','#1b2db1','#851bb1','#c53232'];
+			var Base = function(col,row,list){
+				this.col = col;
+				this.row = row;
+				this.list = list;
+				this.color = '#6a6153';
+				this.backgroundColor = '#ccc0b2';
+				this.number = 0;
+				this.empty = true;
+			}
+			Base.prototype.matchColors = function(){
+				if(this.number > 4){
+					this.color = '#fff';
+				}else {
+					this.color = '#6a6153';
+				}
+			}
+			Base.prototype.matchBackgroundColors = function(){
+				var n = 0;
+				function log2(y){
+					n++;
+					y/2 === 1 ? '' : log2(y/2);
+				}
+				this.number && log2(this.number);
+				this.backgroundColor = backgroundColors[n-1] || '#ccc0b2';
+			}
+			Base.prototype.isEmpty = function(){
+				this.number === 0 ? this.empty = true : this.empty = false;
+			}
+			Base.prototype.changeNumber = function(number){
+				this.number = number;
+				this.matchBackgroundColors();
+				this.matchColors();
+				this.isEmpty();
+			}
+
+			var game2048 = {
+				emptyList : [],
+				numberList : [],
+				init : function(){
+					var i, j, liNode;
+					var pos = document.getElementsByClassName('pos')[0];
+					for(i = 1; i < 5; i++){
+						for(j = 1; j < 5; j++){
+							liNode = document.createElement('li');
+							pos.appendChild(liNode);
+							this[(i-1)*4+j] = new Base(j,i,(i-1)*4+j);
+						}
+					}
+					this.updateEmptyList();
+					this.updateNumberList();
+					this.initRandom();
+				},
+				initRandom : function(){
+					var i, random;
+					for (i = 0; i < 2; i++) {
+						this.changeRandomNumber(true);
+					}
+				},
+				changeRandomNumber : function(isFirst){
+					var isGeneratingRandomNumber = this.isGeneratingRandomNumber(), random;
+					if(!(isGeneratingRandomNumber && !isFirst)){
+						random = this.random();
+						this[random.pos].changeNumber(random.number);
+						this.updateNumberList();
+						this.updateEmptyList();
+						this.viewRepaint();
+					}else {
+						this.gameIsEnd();
+					}
+				},
+				random : function(){
+					var length = this.emptyList.length,
+						pos = this.emptyList[Math.floor(Math.random()*length)],
+						number = Math.ceil(Math.random()*2)*2;
+					if(length === 0){
+						return false;
+					}
+					return {
+						pos : pos,
+						number : number
+					};
+				},
+				isGeneratingRandomNumber : function(){
+					var	_this = this;
+					this.isChangeNumberList = this.numberList;
+					this.updateNumberList();
+					this.updateEmptyList();
+					var	isChange = this.numberList.every(function(item,index){
+						if(item === _this.isChangeNumberList[index]){
+							return true;
+						}else {
+							return false;
+						}
+					})
+					return isChange;
+				},
+				viewRepaint : function(){
+					var elementList = document.getElementsByClassName('pos')[0].getElementsByTagName('li');
+					for (i = 1; i < 17; i++) {
+						elementList[i-1].innerHTML = this[i].number === 0 ? '' : this[i].number;
+						elementList[i-1].style.color = this[i].color;
+						elementList[i-1].style.backgroundColor = this[i].backgroundColor;
+					}
+				},
+				updateEmptyList : function(){
+					var i; 
+					this.emptyList = [];
+					for (i = 1; i < 17; i++) {
+						this[i].empty ? this.emptyList.push(i) : '';
+					}
+				},
+				updateNumberList : function(){
+					var i; 
+					this.numberList = [];
+					for (i = 1; i < 17; i++) {
+						this.numberList.push(this[i].number);
+					}
+				},
+				gameIsEnd : function(){
+					
+				},
+				begin : function(direction){
+					var i, j, k, n;
+					for (i = 1; i < 5; i++) {
+						var numberColList = [], removeZero;
+						if(direction === 'up' || direction === 'down'){
+							for (j = 0; j < 4; j++) {
+								numberColList.push(this[j*4 + i].number);
+							}
+						}else {
+							for (j = 1; j < 5; j++) {
+								numberColList.push(this[(i-1)*4 + j].number);
+							}
+						}
+						removeZero = numberColList.filter(function(item){
+							if(item){
+								return true;
+							}
+						})
+						if(direction === 'down' || direction === 'right'){
+							for (k = removeZero.length; k > 0; k--) {
+								isEqual(k);
+							}
+						}else {
+							for (k = 0; k < removeZero.length; k++) {
+								isEqual(k);
+							}
+						}
+
+						function isEqual(k){
+							if(removeZero[k-1] && removeZero[k-1] === removeZero[k]){
+								removeZero[k-1] *= 2; 
+								removeZero.splice(k,1);
+							}
+						}
+						
+						for(n = 0; n < 4; n++){
+							this[direction](i,n,removeZero);
+						}
+					}
+					this.changeRandomNumber();
+				},
+				left : function(i,n,removeZero){
+					this[(i-1)*4 + n+1].changeNumber(removeZero[n] || 0);
+				},
+				right : function(i,n,removeZero){
+					var length = removeZero.length;
+					this[(i-1)*4 + 4-n].changeNumber(removeZero[length-1-n] || 0);
+				},
+				up : function(i,n,removeZero){
+					this[n*4 + i].changeNumber(removeZero[n] || 0);
+				},
+				down : function(i,n,removeZero){
+					var length = removeZero.length;
+					this[(3-n)*4 + i].changeNumber(removeZero[length-1-n] || 0);
+				}
+			}
+			game2048.init();
+
+			//键盘事件
+			document.onkeydown = function(e){
+				var direction;
+				if(e.keyCode === 38){
+					direction = 'up';
+				}else if(e.keyCode === 39){
+					direction = 'right';
+				}else if(e.keyCode === 40){
+					direction = 'down';
+				}else if(e.keyCode === 37){
+					direction = 'left';
+				}else {
+					return;
+				}
+				game2048.begin(direction);
+			}
+	</script>
+</body>
+</html>
