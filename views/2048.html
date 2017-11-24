@@ -77,7 +77,6 @@
 		</ul>
 	</div>
 	<script type="text/javascript">
-			var backgroundColors = ['#ead5ae','#d9dacd','#f3b179','#f59565','#f57c60','#c14343','#86803a','#73b947','#008422','#1bb1aa','#1b2db1','#851bb1','#c53232'];
 			var Base = function(col,row,list){
 				this.col = col;
 				this.row = row;
@@ -93,24 +92,28 @@
 				}else {
 					this.color = '#6a6153';
 				}
+				return this;
 			}
 			Base.prototype.matchBackgroundColors = function(){
-				var n = 0;
-				function log2(y){
-					n++;
-					y/2 === 1 ? '' : log2(y/2);
+				var backgroundColors = ['#ead5ae','#d9dacd','#f3b179','#f59565','#f57c60','#c14343','#86803a','#73b947','#008422','#1bb1aa','#1b2db1','#851bb1','#c53232'];
+				return function(){
+					var n = 0;
+					function log2(y){
+						n++;
+						y/2 === 1 ? '' : log2(y/2);
+					}
+					this.number && log2(this.number);
+					this.backgroundColor = backgroundColors[n-1] || '#ccc0b2';
+					return this;
 				}
-				this.number && log2(this.number);
-				this.backgroundColor = backgroundColors[n-1] || '#ccc0b2';
-			}
+			}();
 			Base.prototype.isEmpty = function(){
 				this.number === 0 ? this.empty = true : this.empty = false;
+				return this;
 			}
 			Base.prototype.changeNumber = function(number){
 				this.number = number;
-				this.matchBackgroundColors();
-				this.matchColors();
-				this.isEmpty();
+				this.matchColors().isEmpty().matchBackgroundColors();
 			}
 
 			var game2048 = {
@@ -131,7 +134,7 @@
 					this.initRandom();
 				},
 				initRandom : function(){
-					var i, random;
+					var i;
 					for (i = 0; i < 2; i++) {
 						this.changeRandomNumber(true);
 					}
@@ -202,57 +205,52 @@
 				begin : function(direction){
 					var i, j, k, n;
 					for (i = 1; i < 5; i++) {
-						var numberColList = [], removeZero;
+						var numberColList = [], numberColList;
 						if(direction === 'up' || direction === 'down'){
 							for (j = 0; j < 4; j++) {
-								numberColList.push(this[j*4 + i].number);
+								if(this[j*4 + i].number !== 0) numberColList.push(this[j*4 + i].number);
 							}
 						}else {
 							for (j = 1; j < 5; j++) {
-								numberColList.push(this[(i-1)*4 + j].number);
+								if(this[(i-1)*4 + j].number !== 0) numberColList.push(this[(i-1)*4 + j].number);
 							}
 						}
-						removeZero = numberColList.filter(function(item){
-							if(item){
-								return true;
-							}
-						})
 						if(direction === 'down' || direction === 'right'){
-							for (k = removeZero.length; k > 0; k--) {
+							for (k = numberColList.length; k > 0; k--) {
 								isEqual(k);
 							}
 						}else {
-							for (k = 0; k < removeZero.length; k++) {
+							for (k = 0; k < numberColList.length; k++) {
 								isEqual(k);
 							}
 						}
 
 						function isEqual(k){
-							if(removeZero[k-1] && removeZero[k-1] === removeZero[k]){
-								removeZero[k-1] *= 2; 
-								removeZero.splice(k,1);
+							if(numberColList[k-1] && numberColList[k-1] === numberColList[k]){
+								numberColList[k-1] *= 2; 
+								numberColList.splice(k,1);
 							}
 						}
 						
 						for(n = 0; n < 4; n++){
-							this[direction](i,n,removeZero);
+							this[direction](i,n,numberColList);
 						}
 					}
 					this.changeRandomNumber();
 				},
-				left : function(i,n,removeZero){
-					this[(i-1)*4 + n+1].changeNumber(removeZero[n] || 0);
+				left : function(i,n,numberColList){
+					this[(i-1)*4 + n+1].changeNumber(numberColList[n] || 0);
 				},
-				right : function(i,n,removeZero){
-					var length = removeZero.length;
-					this[(i-1)*4 + 4-n].changeNumber(removeZero[length-1-n] || 0);
+				right : function(i,n,numberColList){
+					var length = numberColList.length;
+					this[(i-1)*4 + 4-n].changeNumber(numberColList[length-1-n] || 0);
 				},
-				up : function(i,n,removeZero){
-					this[n*4 + i].changeNumber(removeZero[n] || 0);
+				up : function(i,n,numberColList){
+					this[n*4 + i].changeNumber(numberColList[n] || 0);
 				},
-				down : function(i,n,removeZero){
-					var length = removeZero.length;
-					this[(3-n)*4 + i].changeNumber(removeZero[length-1-n] || 0);
+				down : function(i,n,numberColList){
+					var length = numberColList.length;
+					this[(3-n)*4 + i].changeNumber(numberColList[length-1-n] || 0);
 				}
 			}
 			game2048.init();
