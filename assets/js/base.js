@@ -14,6 +14,25 @@
 		return Math.floor(Math.random() * (m - n + 1) + n);
 	}
 
+	//获取页面视口大小
+	function getPageSize(){
+		var pageWidth = window.innerWidht,
+			pageHeight = window.innerHeight;
+		if(typeof pageWidth !== 'number'){
+			if(document.compatMode == "CSS1Compat"){
+				pageWidth = document.documentElement.clientWidth;
+				pageHeight = document.documentElement.clientHeight;
+			} else {
+				pageWidth = document.body.clientWidth;
+				pageHeight = document.body.clientHeight;
+			}
+		}
+		return {
+			width : pageWidth,
+			height : pageHeight
+		}
+	}
+
 	function isObject(obj){
 		return typeof obj === 'object';
 	}
