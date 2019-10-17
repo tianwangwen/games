@@ -1,0 +1,353 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      em {
+        font-style: normal;
+        font-weight: bold;
+      }
+      .box {
+        width: 100%;
+        height: 100%;
+      }
+      .wrap {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        padding: 20px 40px;
+        display: none;
+      }
+      .green {
+        background-color: #00BC70;
+        color: #5406fb;
+      }
+      .oragen {
+        background-color: #EC9131;
+        color: white;
+      }
+      .oragen em {
+        color: #00BC70;
+      }
+      .yellow {
+        background-color: #f9f386;
+        color: #FF4F50;
+      }
+      .red {
+        background-color: #FF4F50;
+        color: white;
+      }
+      .blue {
+        background-color: #32ABFF;
+        color: white;
+      }
+      .blue em {
+        color: #fff200;
+      }
+      .purple {
+        background-color: #8f72d6;
+        color: white;
+      }
+      .purple em {
+        color: #fff200;
+      }
+      .label {
+        display: inline-block;
+        width: 90px;
+        font-weight: bold;
+      }
+      p {
+        margin-bottom: 12px;
+      }
+      .title {
+        font-size: 18px;
+      }
+      .beginBtn {
+        margin-top: 50px;
+        font-size: 30px;
+        text-align: center;
+        animation: flicker 0.8s infinite alternate;
+      }
+      .ready {
+        margin-top: 50px;
+        font-size: 30px;
+        text-align: center;
+      }
+      .clickText {
+        margin-top: 50px;
+        font-size: 30px;
+        text-align: center;
+        animation: flicker 0.6s infinite alternate;
+      }
+      .errorStep {
+        font-size: 20px;
+        text-align: center;
+      }
+      .aimate {
+        animation: flicker 0.8s infinite alternate;
+      }
+      .fast {
+        margin-top: 50px;
+        font-size: 40px;
+      }
+      .tips {
+        margin-top: 50px;
+        text-align: center;
+      }
+      .tips p {
+        font-size: 30px;
+      }
+      .tips em {
+        font-size: 50px;
+      }
+      .resultStap {
+        position: relative;
+        display: block;
+      }
+      .resultTitle {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+      .resultContainer {
+        font-weight: bold;
+        font-size: 50px;
+        text-align: center;
+      }
+
+      .againBtn {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 12px;
+        height: 40px;
+        line-height: 40px;
+        padding: 0 32px;
+        background-color: #75b91b;
+        color: white;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      .nextBtn {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 20px;
+      }
+
+      @keyframes flicker {
+        0% { opacity: 1; }
+        100% { opacity: 0.7; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div class="wrap readyStep oragen">
+        <p class="title">测试反应速度:  </p>
+        <p class="beginBtn">点击屏幕开始测试</p>
+      </div>
+      <div class="wrap beginStep yellow">
+        <p class="ready">屏幕变绿时</p>
+        <p class="ready">快速点击一下屏幕</p>
+      </div>
+      <div class="wrap errorStep red">
+        <p class="fast">太快啦</p>
+        <span class="aimate nextBtn">点击屏幕继续</span>
+      </div>
+      <div class="wrap successStep blue">
+        <p class="times">
+          <span class="label">次数:</span>
+          <span><em class="timesDom">1</em> / 10</span>
+        </p>
+        <div class="tips">
+          <p><em class="currentTimeDom">313</em> 毫秒</p>
+          <span class="aimate nextBtn">点击屏幕继续</span>
+        </div>
+      </div>
+      <div class="wrap beginningStep green">
+        <p class="clickText">点击屏幕</p>
+      </div>
+      <div class="wrap resultStap purple">
+          <p class="times">
+            <span class="label">次数:</span>
+            <span><em class="resultTimesDom">10</em> 次</span>
+          </p>
+          <p class="times">
+            <span class="label">错误次数:</span>
+            <span><em class="resultErrorTimesDom">1</em> 次</span>
+          </p>
+          <p class="times">
+            <span class="label">平均时间:</span>
+            <span><em class="resultAverageTimeDom">302</em> ms</span>
+          </p>
+          <p class="times">
+            <span class="label">最快速度:</span>
+            <span><em class="resultMinTimeDom">302</em> ms</span>
+          </p>
+          <p class="times">
+            <span class="label">最慢速度:</span>
+            <span><em class="resulMaxTimeDom">302</em> ms</span>
+          </p>
+          <p class="resultTitle">结果分析:</p>
+          <p class="resultContainer">
+            牛
+          </p>
+          <div class="againBtn">
+            再次测试
+          </div>
+      </div>
+    </div>
+    <script>
+      (function() {
+        const domList = {};
+        const otherDomList = {};
+        const amountTimes = 10; // 共10次
+        let time = [];
+        let times = 0; // 当前次数
+        let averageTime; // 平均时间
+        let beginTime; // 开始计时
+        let endTime; // 结束计时
+        let currentTime; // 本次时间
+        let timeout = null;
+        let errorTimes = 0;
+
+        function getDom(className) { // 获取dom元素
+          return document.getElementsByClassName(className)[0];
+        }
+        function show(className) {
+          Object.keys(domList).map((item) => {
+            domList[item].style.display = 'none';
+          });
+          domList[className].style.display = 'block';
+        }
+        function random(min, max) {
+          return Math.floor(Math.random() * (max - min) + min + 1);
+        }
+
+        const domListClassName = ['readyStep', 'beginStep', 'beginningStep', 'successStep', 'errorStep', 'resultStap'];
+        const otherDomClassName = ['timesDom', 'currentTimeDom', 'againBtn', 'resultTimesDom', 'resultErrorTimesDom', 'resultAverageTimeDom', 'resultMinTimeDom', 'resulMaxTimeDom', 'resultContainer'];
+
+        domListClassName.map((item) => {
+          domList[item] = getDom(item);
+        });
+        otherDomClassName.map((item) => {
+          otherDomList[item] = getDom(item);
+        });
+
+        // 第一步 ready show
+        show('readyStep');
+        
+
+        domList.readyStep.addEventListener('click', ready, false);
+        domList.beginStep.addEventListener('click', begin, false);
+        domList.beginningStep.addEventListener('click', beginning, false);
+        domList.successStep.addEventListener('click', success, false);
+        domList.errorStep.addEventListener('click', error, false);
+        otherDomList.againBtn.addEventListener('click', again, false);
+
+        function ready(e) {
+          show('beginStep');
+          const randomTime = random(1000, 4500);
+          timeout = setTimeout(() => {
+            show('beginningStep');
+            beginTime = new Date().getTime();
+          }, randomTime);
+        };
+
+        function begin(e) {
+          clearTimeout(timeout);
+          beginTime = null;
+          errorTimes++;
+          show('errorStep');
+        }
+
+        function error(e) {
+          ready();
+        }
+
+        function beginning(e) {
+          endTime = new Date().getTime();
+          currentTime = endTime - beginTime;
+          time.push(currentTime);
+          averageTime = Math.floor(time.reduce((p, n) => p + n) / time.length);
+          times++;
+          uploadSuccessData();
+          show('successStep');
+        };
+        function success(e) {
+          if (times >= amountTimes) {
+            show('resultStap');
+            uploadResultData();
+          } else {
+            ready();
+          }
+        };
+
+        function again() {
+          initData();
+          ready();
+        }
+
+        function initData() {
+          time = [];
+          times = 0; // 当前次数
+          averageTime = undefined; // 平均时间
+          beginTime = undefined; // 开始计时
+          endTime = undefined; // 结束计时
+          currentTime = undefined; // 本次时间
+          timeout = null;
+          errorTimes = 0;
+        }
+        function uploadData(data) {
+          Object.keys(data).forEach((item) => {
+            otherDomList[item].innerHTML = data[item];
+          });
+        };
+        function uploadSuccessData() {
+          uploadData({
+            timesDom: times,
+            currentTimeDom: currentTime,
+          });
+        };
+        function uploadResultData () {
+          const resultContainer = resultAnalyze();
+          uploadData({
+            resultTimesDom: times,
+            resultErrorTimesDom: errorTimes,
+            resultAverageTimeDom: averageTime,
+            resultMinTimeDom: Math.min(...time),
+            resulMaxTimeDom: Math.max(...time),
+            resultContainer,
+          });
+        };
+        function resultAnalyze() {
+          const result = {
+            findBug: '你是在寻找漏洞?',
+            hard: '你很努力，but...',
+            old: '你老了',
+            other: '牛'
+          };
+          if (errorTimes > 10) {
+            return result.findBug;
+          }
+          if (errorTimes > 5) {
+            return result.hard;
+          }
+          if (averageTime > 400) {
+            return result.old;
+          }
+          return result.other;
+        };
+      })();
+    </script>
+  </body>
+</html>
